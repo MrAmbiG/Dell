@@ -1,10 +1,10 @@
 ﻿<#
 .SYNOPSIS
-    set the hostname for dell iDRAC servers
+    set the ntp for dell iDRAC servers
 .DESCRIPTION
-    opens up a csv file. put the ip addresses of idrac, root password and the domain name to be set
+    opens up a csv file. put the ip addresses of idrac, root password and ntp
 .NOTES
-    File Name      : idracSetDomain.ps1
+    File Name      : idracSetNtp.ps1
     Author         : gajendra d ambi
     Date           : Dec 2017
     Prerequisite   : PowerShell v4+, Dell OpenManage DRAC Tools, includes Racadm (64bit) v8.1 or higher
@@ -22,8 +22,8 @@ save & close the file,
 Hit Enter to proceed
 " -ForegroundColor Blue -BackgroundColor White
 
-$csv = "$PSScriptRoot/idracSetDomain.csv"
-get-process | Select-Object idrac_ip_address, root_password, DomainName | Export-Csv -Path $csv -Encoding ASCII -NoTypeInformation
+$csv = "$PSScriptRoot/idracSetNtp.csv"
+get-process | Select-Object idrac_ip_address, root_password, ntp1, ntp2 | Export-Csv -Path $csv -Encoding ASCII -NoTypeInformation
 Start-Process $csv
 Read-Host "Hit Enter/Return to proceed"
 Write-Host "processing your entries from the csv file...."
@@ -32,7 +32,15 @@ foreach ($line in $csv)
  {
     $idrac_ip_address = $($line.idrac_ip_address)
     $root_password = $($line.root_password)
-    $DomainName = $($line.DomainName)
-    Write-Host "setting $DomainName as DomainName on $idrac_ip_address"
-    racadm -r $idrac_ip_address -u "root" -p $root_password --nocertwarn set iDRAC.NIC.DNSDomainName $DomainName
+    $ntp1 = $($line.ntp1)
+    $ntp2 = $($line.ntp2)
+    $user = 'root'
+
+    Write-Host setting $ntp1 as the ntp 
+    racadm -r $idrac_ip_address -u $user -p $root_password --nocertwarn set iDRAC.NTPConfigGroup.NTP1 $ntp1
+
+    if ($ntp2.Length -gt 2) {
+    Write-Host settings $ntp2 as the ntp 
+    racadm -r $idrac_ip_address -u $user -p $root_password --nocertwarn set iDRAC.NTPConfigGroup.NTP1 $ntp2
+    }
  }

@@ -22,7 +22,7 @@ save & close the file,
 Hit Enter to proceed
 " -ForegroundColor Blue -BackgroundColor White
 
-$csv = "$PSScriptRoot/idracRootPassChange.csv"
+$csv = "$PSScriptRoot/idracSetHostname.csv"
 get-process | Select-Object idrac_ip_address, root_password, hostname | Export-Csv -Path $csv -Encoding ASCII -NoTypeInformation
 Start-Process $csv
 Read-Host "Hit Enter/Return to proceed"
@@ -34,5 +34,5 @@ foreach ($line in $csv)
     $root_password = $($line.root_password)
     $hostname = $($line.hostname)
     Write-Host "setting $hostname as hostname on $idrac_ip_address"
-    racadm -r $idrac_ip_address -u "root" -p $root_password set iDRAC.NIC.DNSDomainName $domain    
+    racadm -r $idrac_ip_address -u "root" -p $root_password --nocertwarn set iDRAC.NIC.DNSDomainName $domain    
  }
